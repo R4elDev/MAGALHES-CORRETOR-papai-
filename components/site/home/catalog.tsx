@@ -29,73 +29,23 @@ export function Catalog({ sp, filters, sort, page, filtered, items, total, hasMo
         {!error && total > 0 && <p className="text-sm text-muted">{total} {total === 1 ? "imóvel" : "imóveis"}</p>}
       </div>
 
-      <form method="get" action="/#imoveis" className="mt-6 grid gap-3 rounded-2xl border border-border bg-surface p-4 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_auto] lg:items-end">
-        <Field label="Cidade ou bairro">
-          <input name="q" defaultValue={filters.q} placeholder="Ex.: Barueri" className="input" />
-        </Field>
-        <Field label="Tipo">
-          <select name="tipo" defaultValue={filters.type ?? ""} className="input">
-            <option value="">Todos</option>
-            <option value="house">Casa</option>
-            <option value="apartment">Apartamento</option>
-            <option value="land">Terreno</option>
-            <option value="commercial">Comercial</option>
-          </select>
-        </Field>
-        <Field label="Preço máximo (R$)">
-          <input name="max" inputMode="numeric" defaultValue={one(sp.max)} placeholder="Sem limite" className="input" />
-        </Field>
-        <Field label="Quartos (mín.)">
-          <select name="quartos" defaultValue={filters.minBedrooms?.toString() ?? ""} className="input">
-            <option value="">Qualquer</option>
-            {[1, 2, 3, 4].map((n) => (
-              <option key={n} value={n}>{n}+</option>
-            ))}
-          </select>
-        </Field>
-        <button type="submit" className="btn-press h-11 rounded-full bg-orange px-7 font-semibold text-white sm:col-span-2 lg:col-span-1">
-          Filtrar
-        </button>
-
-        <details className="group sm:col-span-2 lg:col-span-5" open={Boolean(filters.purpose || filters.minPrice || filters.minParking || sort !== "recent")}>
-          <summary className="inline-flex cursor-pointer items-center gap-1 text-sm font-semibold text-blue hover:text-orange">
-            Mais filtros <span aria-hidden className="transition-transform duration-150 group-open:rotate-90">›</span>
-          </summary>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Field label="Finalidade">
-              <select name="finalidade" defaultValue={filters.purpose ?? ""} className="input">
-                <option value="">Compra ou aluguel</option>
-                <option value="sale">Compra</option>
-                <option value="rent">Aluguel</option>
-              </select>
-            </Field>
-            <Field label="Preço mínimo (R$)">
-              <input name="min" inputMode="numeric" defaultValue={one(sp.min)} className="input" />
-            </Field>
-            <Field label="Vagas (mín.)">
-              <select name="vagas" defaultValue={filters.minParking?.toString() ?? ""} className="input">
-                <option value="">Qualquer</option>
-                {[1, 2, 3].map((n) => (
-                  <option key={n} value={n}>{n}+</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Ordenar por">
-              <select name="ordem" defaultValue={sort} className="input">
-                <option value="recent">Mais recentes</option>
-                <option value="price_asc">Menor preço</option>
-                <option value="price_desc">Maior preço</option>
-              </select>
-            </Field>
-          </div>
-        </details>
-      </form>
-
-      {filtered && (
-        <p className="mt-3 text-sm">
-          <Link href="/#imoveis" className="font-semibold text-blue hover:text-orange">Limpar filtros</Link>
-        </p>
-      )}
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <ul className="flex flex-wrap gap-2" aria-label="Filtrar por tipo">
+          {TYPES.map(([value, label]) => (
+            <li key={label}>
+              <Chip href={withParams(sp, { tipo: value, pagina: undefined })} active={(filters.type ?? "") === value}>{label}</Chip>
+            </li>
+          ))}
+        </ul>
+        <ul className="flex flex-wrap items-center gap-2" aria-label="Ordenar">
+          <li className="text-sm text-muted">Ordenar:</li>
+          {SORTS.map(([value, label]) => (
+            <li key={value}>
+              <Chip href={withParams(sp, { ordem: value === "recent" ? undefined : value, pagina: undefined })} active={sort === value}>{label}</Chip>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="mt-8">
         {items.length === 0 ? (
@@ -124,13 +74,34 @@ export function Catalog({ sp, filters, sort, page, filtered, items, total, hasMo
   );
 }
 
-const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+const TYPES: [string, string][] = [["", "Todos"], ["house", "Casas"], ["apartment", "Apartamentos"], ["land", "Terrenos"]];
+const SORTS: [PublicSort, string][] = [["recent", "Recentes"], ["price_asc", "Menor preço"], ["price_desc", "Maior preço"]];
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function withParams(sp: SP, patch: Record<string, string | undefined>): string {
+  const u = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    const val = Array.isArray(v) ? v[0] : v;
+    if (val) u.set(k, val);
+  }
+  for (const [k, v] of Object.entries(patch)) {
+    if (v) u.set(k, v);
+    else u.delete(k);
+  }
+  const q = u.toString();
+  return `/${q ? `?${q}` : ""}#imoveis`;
+}
+
+function Chip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
-    <label className="grid min-w-0 gap-1 text-sm font-medium text-navy">
-      {label}
+    <Link
+      href={href}
+      scroll={false}
+      aria-current={active ? "true" : undefined}
+      className={`btn-press inline-flex h-10 items-center rounded-full border px-4 text-sm font-semibold ${
+        active ? "border-navy bg-navy text-white" : "border-border bg-white text-navy hover:border-navy"
+      }`}
+    >
       {children}
-    </label>
+    </Link>
   );
 }
