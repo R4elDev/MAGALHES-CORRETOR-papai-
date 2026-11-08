@@ -35,7 +35,7 @@ export function SiteHeader({ name, whatsappHref }: { name: string; whatsappHref:
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <Link href="/" className="flex min-w-0 items-center gap-2.5" onClick={close}>
           <Image src="/magalhaes/rosto/01_sorrindo_oculos.png" alt="" width={36} height={36} className="size-9 shrink-0 rounded-full bg-surface object-cover" />
-          <span className="truncate font-display text-base font-extrabold leading-none text-navy">{name}</span>
+          <span className="font-display text-sm font-extrabold leading-[1.1] text-navy sm:text-base">{name}</span>
         </Link>
 
         <nav aria-label="Principal" className="hidden items-center gap-7 text-sm font-medium text-navy lg:flex">
@@ -52,12 +52,12 @@ export function SiteHeader({ name, whatsappHref }: { name: string; whatsappHref:
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-press inline-flex h-11 items-center rounded-full bg-whatsapp px-4 text-sm font-semibold text-white"
+              className="btn-press inline-flex h-11 items-center rounded-full bg-whatsapp px-4 text-sm font-semibold text-white max-[359px]:hidden"
             >
               WhatsApp
             </a>
           ) : (
-            <Link href="/#contato" className="btn-press inline-flex h-11 items-center rounded-full bg-orange px-4 text-sm font-semibold text-white">
+            <Link href="/#contato" className="btn-press inline-flex h-11 items-center rounded-full bg-orange px-4 text-sm font-semibold text-white max-[359px]:hidden">
               Contato
             </Link>
           )}
