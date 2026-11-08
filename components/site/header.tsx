@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const NAV = [
@@ -15,7 +15,21 @@ const NAV = [
 
 export function SiteHeader({ name, whatsappHref }: { name: string; whatsappHref: string | null }) {
   const [open, setOpen] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const close = () => setOpen(false);
+
+  // Escape fecha o menu mobile e devolve o foco ao botão que o abriu (não é modal; sem focus trap).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        btnRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
@@ -38,22 +52,23 @@ export function SiteHeader({ name, whatsappHref }: { name: string; whatsappHref:
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-press inline-flex h-10 items-center rounded-full bg-whatsapp px-4 text-sm font-semibold text-white"
+              className="btn-press inline-flex h-11 items-center rounded-full bg-whatsapp px-4 text-sm font-semibold text-white"
             >
               WhatsApp
             </a>
           ) : (
-            <Link href="/#contato" className="btn-press inline-flex h-10 items-center rounded-full bg-orange px-4 text-sm font-semibold text-white">
+            <Link href="/#contato" className="btn-press inline-flex h-11 items-center rounded-full bg-orange px-4 text-sm font-semibold text-white">
               Contato
             </Link>
           )}
           <button
+            ref={btnRef}
             type="button"
             aria-label={open ? "Fechar menu" : "Abrir menu"}
             aria-expanded={open}
             aria-controls="menu-mobile"
             onClick={() => setOpen((v) => !v)}
-            className="grid size-10 place-items-center rounded-full text-navy lg:hidden"
+            className="grid size-11 place-items-center rounded-full text-navy lg:hidden"
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>

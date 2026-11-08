@@ -52,7 +52,7 @@ export function ContactFaq({ settings, whatsappHref }: { settings: SiteSettings 
               </ul>
             )}
             {!hasChannel && (
-              <p className="rounded-2xl bg-surface p-5 text-muted">Os canais de contato serão divulgados em breve. Enquanto isso, use a busca acima para registrar o que você procura.</p>
+              <p className="rounded-2xl bg-surface p-5 text-muted">Os canais de contato serão divulgados em breve. Enquanto isso, explore os imóveis do catálogo e veja as opções disponíveis.</p>
             )}
           </div>
         </div>
