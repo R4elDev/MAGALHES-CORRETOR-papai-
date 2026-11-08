@@ -27,3 +27,20 @@ Todas aditivas (sem DROP/TRUNCATE). Aplicar só com autorização do usuário.
 ## Pendências
 - Dimensão do embedding + índice HNSW: aguardam `EMBEDDING_MODEL` (Nexo/usuário).
 - Chaves: o dono copia anon e service_role do painel para `.env.local` e para o env da Vercel deste projeto.
+
+## Estado real (2026-11-08)
+- Migrations 0001-0005 **aplicadas** no projeto `rnmoztsnjmkpykucrmnk` (banco estava vazio; aprovado pelo root/Codex).
+- Verificado: 18 tabelas, todas com RLS; 17 policies (public + storage); 4 views públicas; buckets `property-images` (privado) e `site-assets` (público); pgvector instalado.
+- Testes `supabase/tests/rls.sql` (41 casos: anon, usuário comum, admin, outbox, RPCs, RPC atômica, storage) rodaram **antes e depois** do apply com 0 falhas, em transação com rollback forçado. Nenhuma fixture persistiu (0 imóveis/contas/jobs/objetos).
+- `.env.local` criado (ignorado pelo git) com URL, chave publicável e chave secreta deste projeto. Nada impresso em log/chat. `EMBEDDING_MODEL` vazio de propósito.
+- Auth: **0 usuários** existentes. Nenhuma conta foi criada pelo agente.
+
+## Handoff do usuário: criar o primeiro admin (2 minutos)
+1. Painel do projeto "Magalhaes Corretor ( papai )" → Authentication → Users → **Add user → Create new user**; informe SEU e-mail e uma senha que só você conhece (marque "Auto Confirm User"). Não envie a senha a ninguém.
+2. SQL Editor → rode (troque o e-mail):
+   `insert into public.admin_users (user_id, email) select id, email from auth.users where email = 'SEU_EMAIL';`
+3. Authentication → Sign In / Providers → Email → desligue **Allow new users to sign up** (ninguém se auto-cadastra).
+4. Login em `/admin/login` com esse e-mail e senha.
+
+## Vercel (Farol, depois da revisão)
+Definir no projeto Vercel DESTE site: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (somente servidor, nunca `NEXT_PUBLIC_`). Valores: copiar do `.env.local` local sem colar em chat/commit.
