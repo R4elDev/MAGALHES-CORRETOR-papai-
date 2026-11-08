@@ -208,4 +208,54 @@ begin
   insert into results values ('bucket property-images e privado', pub = false, pub::text);
 end $$;
 
+-- ===== RPC atomica admin_save_property =====
+do $$
+declare r jsonb; pid uuid; n_priv int; n_feat int; n_job int; before_n int; after_n int; rolled boolean := false;
+  non_admin_blocked boolean := false; anon_blocked boolean := false; upd jsonb; addr text; hide boolean;
+begin
+  perform set_config('request.jwt.claims', '{"sub":"aaaaaaaa-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+  set local role authenticated;
+  select public.admin_save_property(null,
+    '{"slug":"rpc-ok","code":"R-001","title":"Via RPC","type":"house","purpose":"sale","price":500000,"status":"published","city":"Osasco","state":"SP","neighborhood":"Centro","address":"Rua RPC 1","hide_address":true,"latitude":-23.5,"longitude":-46.8,"qualquer_chave":"ignorada"}'::jsonb,
+    array['33333333-3333-3333-3333-333333333333'::uuid]) into r;
+  pid := (r->>'id')::uuid;
+  select count(*) into n_priv from public.property_private where property_id = pid and address = 'Rua RPC 1';
+  select count(*) into n_feat from public.property_features where property_id = pid;
+  -- update parcial: so o preco; endereco e comodidades intactos
+  select public.admin_save_property(pid, '{"price":450000}'::jsonb, null) into upd;
+  select address into addr from public.property_private where property_id = pid;
+  select address_public into hide from public.properties where id = pid;
+  -- FK invalida em comodidade: tudo deve desfazer
+  select count(*) into before_n from public.properties;
+  begin
+    perform public.admin_save_property(null,
+      '{"slug":"rpc-fk","code":"R-002","title":"Falha FK","type":"house","status":"published"}'::jsonb,
+      array['99999999-9999-9999-9999-999999999999'::uuid]);
+  exception when foreign_key_violation then rolled := true;
+  end;
+  select count(*) into after_n from public.properties;
+  reset role;
+  select count(*) into n_job from public.index_jobs where property_id = pid and op = 'upsert' and status = 'pending';
+  insert into results values ('rpc: cria imovel+privado+comodidade atomico', pid is not null and n_priv = 1 and n_feat = 1, n_priv || '/' || n_feat);
+  insert into results values ('rpc: published gera upsert no outbox (mesma transacao)', n_job = 1, n_job::text);
+  insert into results values ('rpc: update parcial preserva endereco e oculta (hide_address)', addr = 'Rua RPC 1' and hide = false, addr);
+  insert into results values ('rpc: FK invalida desfaz tudo (sem imovel parcial)', rolled and before_n = after_n, before_n || '->' || after_n);
+end $$;
+
+do $$
+declare na boolean := false; an boolean := false;
+begin
+  perform set_config('request.jwt.claims', '{"sub":"aaaaaaaa-0000-0000-0000-0000000000a2","role":"authenticated"}', true);
+  set local role authenticated;
+  begin perform public.admin_save_property(null, '{"slug":"x","code":"X","title":"x","type":"house"}'::jsonb, null);
+  exception when insufficient_privilege then na := true; end;
+  reset role;
+  set local role anon;
+  begin perform public.admin_save_property(null, '{"slug":"y"}'::jsonb, null);
+  exception when insufficient_privilege then an := true; end;
+  reset role;
+  insert into results values ('rpc: usuario comum recebe forbidden', na, null);
+  insert into results values ('rpc: anon sem EXECUTE', an, null);
+end $$;
+
 select test, ok, detail from results order by ok, test;

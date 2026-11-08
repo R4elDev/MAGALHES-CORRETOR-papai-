@@ -75,55 +75,54 @@ export async function getById(id: string): Promise<AdminProperty | null> {
   };
 }
 
-function toRow(p: Partial<PropertyInput>) {
-  const row: Record<string, unknown> = {};
-  const map: Record<string, string> = {
-    code: "code", title: "title", description: "description", type: "type", purpose: "purpose", price: "price",
-    condo_fee: "condo_fee", iptu: "iptu", area_useful: "area", area_total: "area_total", bedrooms: "bedrooms",
-    bathrooms: "bathrooms", suites: "suites", parking: "parking", city: "city", state: "state",
-    neighborhood: "neighborhood", status: "status", featured: "featured",
-  };
-  for (const [k, col] of Object.entries(map)) if (k in p) row[col] = (p as Record<string, unknown>)[k];
-  if ("hide_address" in p) row.address_public = !p.hide_address;
-  return row;
-}
+export type SavePropertyInput = Partial<PropertyInput> & {
+  /** ausente = criar (exige o formulario completo); presente = atualizacao parcial */
+  id?: string;
+  /** conjunto final de comodidades; ausente = nao mexe */
+  featureIds?: string[];
+};
 
-function toPrivate(p: Partial<PropertyInput>) {
-  const row: Record<string, unknown> = {};
-  if ("address" in p) row.address = p.address ?? null;
-  if ("latitude" in p) row.lat = p.latitude ?? null;
-  if ("longitude" in p) row.lng = p.longitude ?? null;
-  return row;
-}
+const RPC_KEYS = [
+  "code", "title", "description", "type", "purpose", "price", "condo_fee", "iptu", "area_useful", "area_total",
+  "bedrooms", "bathrooms", "suites", "parking", "city", "state", "neighborhood", "status", "featured",
+  "hide_address", "address", "latitude", "longitude",
+] as const;
 
-export async function create(input: PropertyInput): Promise<{ id: string; slug: string }> {
+/**
+ * Salvamento ATOMICO (RPC admin_save_property): imovel + dados privados (endereco/coordenada) + comodidades
+ * numa unica transacao; trigger do outbox na mesma transacao. Qualquer erro desfaz tudo.
+ * A RPC exige is_admin() e roda com a RLS do usuario (security invoker).
+ */
+export async function save(input: SavePropertyInput): Promise<{ id: string; slug: string }> {
   const supabase = await createSessionClient();
-  const base = slugify(`${input.title}-${input.code}`) || "imovel";
+  const payload: Record<string, unknown> = {};
+  for (const k of RPC_KEYS) if (k in input) payload[k] = (input as Record<string, unknown>)[k] ?? null;
+  const featureIds = input.featureIds ?? null;
+
+  if (input.id) {
+    const res = await supabase.rpc("admin_save_property", { p_id: input.id, p: payload, p_feature_ids: featureIds });
+    return must(res, "salvar imovel") as { id: string; slug: string };
+  }
+
+  const base = slugify(`${input.title ?? ""}-${input.code ?? ""}`) || "imovel";
   for (let attempt = 0; attempt < 3; attempt++) {
     const slug = attempt === 0 ? base : `${base}-${Math.random().toString(36).slice(2, 6)}`;
-    const res = await supabase.from("properties").insert({ ...toRow(input), slug }).select("id, slug").single();
+    const res = await supabase.rpc("admin_save_property", { p_id: null, p: { ...payload, slug }, p_feature_ids: featureIds });
     if (res.error?.code === "23505") {
       if (/code/.test(res.error.message)) throw new DalError("Codigo interno ja utilizado", "23505");
-      continue; // slug repetido: tenta de novo com sufixo
+      continue; // slug repetido: a RPC inteira desfez; tenta com sufixo
     }
-    const created = must(res, "criar imovel") as { id: string; slug: string };
-    const priv = toPrivate(input);
-    if (Object.keys(priv).length) {
-      must(await supabase.from("property_private").upsert({ property_id: created.id, ...priv }), "salvar dados privados");
-    }
-    return created;
+    return must(res, "salvar imovel") as { id: string; slug: string };
   }
   throw new DalError("Nao foi possivel gerar slug unico");
 }
 
-export async function update(id: string, patch: Partial<PropertyInput>): Promise<void> {
-  const supabase = await createSessionClient();
-  const row = toRow(patch);
-  if (Object.keys(row).length) must(await supabase.from("properties").update(row).eq("id", id).is("deleted_at", null), "atualizar imovel");
-  const priv = toPrivate(patch);
-  if (Object.keys(priv).length) {
-    must(await supabase.from("property_private").upsert({ property_id: id, ...priv, updated_at: new Date().toISOString() }), "salvar dados privados");
-  }
+/** Atalhos sobre save() (tambem atomicos para imovel + privado). */
+export async function create(input: PropertyInput & { featureIds?: string[] }) {
+  return save(input);
+}
+export async function update(id: string, patch: Partial<PropertyInput> & { featureIds?: string[] }): Promise<void> {
+  await save({ ...patch, id });
 }
 
 export async function setStatus(id: string, status: PropertyStatus): Promise<void> {

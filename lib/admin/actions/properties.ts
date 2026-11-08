@@ -1,9 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import * as properties from "@/lib/dal/properties";
-import * as features from "@/lib/dal/features";
 import { adminAction } from "../guard";
-import { ok } from "../result";
+import { ok, fail } from "../result";
 import { propertyFormSchema, idSchema, statusChangeSchema, featuredSchema } from "../forms";
 import { propertyToDal } from "../mappers";
 
@@ -17,16 +16,16 @@ const refresh = (id?: string) => {
 };
 
 export const saveProperty = adminAction(propertyFormSchema, async (d) => {
-  const payload = propertyToDal(d);
-  let id = d.id;
-  if (id) await properties.update(id, payload);
-  else {
-    const created = await properties.create(payload);
-    id = created.id;
+  // UMA mutação atômica (RPC admin_save_property): properties + dados privados + comodidades, tudo ou nada.
+  try {
+    const saved = await properties.save({ ...propertyToDal(d), id: d.id, featureIds: d.featureIds });
+    refresh(saved.id);
+    return ok({ id: saved.id }, d.id ? "Imóvel atualizado." : "Imóvel criado.");
+  } catch (e) {
+    if ((e as { code?: string })?.code === "23505")
+      return fail("Código interno já utilizado.", { code: ["Código interno já utilizado"] });
+    throw e; // adminAction converte em erro recuperável genérico
   }
-  await features.attach(id!, d.featureIds);
-  refresh(id);
-  return ok({ id: id! }, d.id ? "Imóvel atualizado." : "Imóvel criado.");
 });
 
 export const changePropertyStatus = adminAction(statusChangeSchema, async ({ id, status }) => {
