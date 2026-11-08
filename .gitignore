@@ -1,0 +1,18 @@
+# segredos
+.env
+.env.*
+!.env.example
+*.pem
+supabase/.temp/
+supabase/.branches/
+
+# node / next
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# imagens originais (preservadas localmente; copias de uso em public/magalhaes)
+imagens/
