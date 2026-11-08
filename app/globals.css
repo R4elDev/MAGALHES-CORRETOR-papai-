@@ -36,20 +36,22 @@ h3 {
   text-wrap: balance;
 }
 
-.input {
-  height: 2.75rem;
-  width: 100%;
-  min-width: 0;
-  border-radius: 0.75rem;
-  border: 1px solid var(--color-border);
-  background: #fff;
-  padding: 0 0.75rem;
-  font-size: 1rem; /* 16px evita zoom no iOS */
-  color: var(--color-foreground);
-  transition: border-color 150ms ease, box-shadow 150ms ease;
-}
-.input:hover {
-  border-color: #c5cfdd;
+@layer components {
+  .input {
+    height: 2.75rem;
+    width: 100%;
+    min-width: 0;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-border);
+    background: #fff;
+    padding: 0 0.75rem;
+    font-size: 1rem; /* 16px evita zoom no iOS */
+    color: var(--color-foreground);
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .input:hover {
+    border-color: #c5cfdd;
+  }
 }
 
 /* Botões: feedback de toque em transform apenas */
