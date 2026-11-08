@@ -23,11 +23,11 @@ export function CatalogEmpty({ error, filtered, whatsappHref }: { error?: boolea
             Conversar com o Magalhães
           </a>
         ) : (
-          <Link href="/contato" className="flex h-12 items-center justify-center rounded-full bg-orange px-6 font-semibold text-white">
+          <Link href="/#contato" className="flex h-12 items-center justify-center rounded-full bg-orange px-6 font-semibold text-white">
             Fale com o Magalhães
           </Link>
         )}
-        <Link href="/encontre-seu-imovel" className="flex h-12 items-center justify-center rounded-full border border-navy px-6 font-semibold text-navy">
+        <Link href="/#busca" className="flex h-12 items-center justify-center rounded-full border border-navy px-6 font-semibold text-navy">
           Encontrar meu imóvel
         </Link>
       </div>

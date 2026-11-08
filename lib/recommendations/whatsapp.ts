@@ -2,11 +2,18 @@
 import { buildWhatsAppLink, brl, messageForProperty, messageForSearch, messageNoResults, type SearchPrefs } from "@/lib/whatsapp";
 import type { PropertyCard, SearchFilters, SearchOutput } from "@/lib/search/types";
 
-export function prefsFromFilters(f: SearchFilters, extra: SearchPrefs = {}): SearchPrefs {
+const FIN: Record<string, string> = { financiar: "pretende financiar", a_vista: "à vista", avaliando: "ainda avaliando" };
+
+export function prefsFromFilters(
+  f: SearchFilters,
+  extra: SearchPrefs & { financing?: string } = {},
+): SearchPrefs {
+  const fin = extra.financing ? FIN[extra.financing] : undefined;
+  const budgetBase = extra.budget ?? (f.maxPrice != null ? brl(f.maxPrice) : undefined);
   return {
-    region: extra.region ?? ([f.neighborhood, f.city].filter(Boolean).join(", ") || undefined),
+    region: extra.region ?? ([f.place, f.neighborhood, f.city].filter(Boolean).join(", ") || undefined),
     income: extra.income,
-    budget: extra.budget ?? (f.maxPrice != null ? brl(f.maxPrice) : undefined),
+    budget: fin ? `${budgetBase ?? "a definir"} (${fin})` : budgetBase,
     type: extra.type ?? f.type,
     bedrooms: extra.bedrooms ?? f.minBedrooms,
   };
@@ -22,6 +29,7 @@ export function whatsappForSearch(
   out: Pick<SearchOutput, "results" | "noResults">,
   prefs: SearchPrefs,
   siteUrl: string,
+  notes?: string,
 ): string | null {
   const text = out.noResults
     ? messageNoResults(prefs)
@@ -29,7 +37,10 @@ export function whatsappForSearch(
         prefs,
         out.results.slice(0, 5).map((c) => ({ code: c.code ?? c.id.slice(0, 8), url: `${siteUrl}/imoveis/${c.slug ?? c.id}` })),
       );
-  return buildWhatsAppLink(phone, text);
+  // texto livre do visitante vai só no link wa.me aberto por ele; não é gravado nem logado
+  return buildWhatsAppLink(phone, notes ? `${text}
+
+Observações: ${notes}` : text);
 }
 
 /** Link "Conversar sobre este imóvel" (origem: imóvel). Só dados públicos do card. */

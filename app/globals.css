@@ -2,6 +2,7 @@
 
 @theme inline {
   --color-navy: #092a5e;
+  --color-navy-deep: #061c40;
   --color-blue: #1769aa;
   --color-orange: #ff7500;
   --color-surface: #f5f7fa;
@@ -12,10 +13,12 @@
   --color-border: #e3e8ef;
   --font-sans: var(--font-inter);
   --font-display: var(--font-jakarta);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem; /* header sticky */
 }
 
 body {
@@ -23,23 +26,66 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--font-jakarta), var(--font-inter), sans-serif;
+  text-wrap: balance;
 }
 
 .input {
   height: 2.75rem;
   width: 100%;
+  min-width: 0;
   border-radius: 0.75rem;
   border: 1px solid var(--color-border);
   background: #fff;
   padding: 0 0.75rem;
   font-size: 1rem; /* 16px evita zoom no iOS */
   color: var(--color-foreground);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.input:hover {
+  border-color: #c5cfdd;
+}
+
+/* Botões: feedback de toque em transform apenas */
+.btn-press {
+  transition: transform 160ms var(--ease-out-strong), background-color 160ms ease, color 160ms ease;
+}
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Entrada suave de seções (uma vez, sem depender de JS) */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise {
+  animation: rise 520ms var(--ease-out-strong) both;
+}
+.rise-2 {
+  animation-delay: 80ms;
+}
+.rise-3 {
+  animation-delay: 160ms;
+}
+
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
 }
 
 :focus-visible {

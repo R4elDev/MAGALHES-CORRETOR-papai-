@@ -5,6 +5,7 @@ import type { FilterKey, PropertyCard, SearchFilters } from "./types";
 // Disponibilidade nunca é um filtro opcional: é sempre forçada no servidor.
 export const searchFiltersSchema = z
   .object({
+    place: z.string().trim().min(1).max(80).optional(),
     city: z.string().trim().min(1).max(80).optional(),
     neighborhood: z.string().trim().min(1).max(80).optional(),
     type: z.string().trim().min(1).max(40).optional(),
@@ -32,6 +33,12 @@ export function norm(s: string | null | undefined): string {
     .toLowerCase();
 }
 
+/** place casa se o texto aparece (sem acento/caixa) na cidade OU no bairro. */
+export function matchesPlace(card: Pick<PropertyCard, "city" | "neighborhood">, place: string): boolean {
+  const p = norm(place);
+  return norm(card.city).includes(p) || norm(card.neighborhood).includes(p);
+}
+
 export function isAvailable(card: Pick<PropertyCard, "status">): boolean {
   return card.status === "published";
 }
@@ -40,6 +47,7 @@ export function isAvailable(card: Pick<PropertyCard, "status">): boolean {
 export function unmetCriteria(card: PropertyCard, f: SearchFilters): FilterKey[] {
   const out: FilterKey[] = [];
   if (!isAvailable(card)) out.push("availability");
+  if (f.place && !matchesPlace(card, f.place)) out.push("place");
   if (f.city && norm(card.city) !== norm(f.city)) out.push("city");
   if (f.neighborhood && norm(card.neighborhood) !== norm(f.neighborhood)) out.push("neighborhood");
   if (f.type && norm(card.type) !== norm(f.type)) out.push("type");

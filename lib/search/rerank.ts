@@ -1,4 +1,4 @@
-import { norm } from "./filters";
+import { matchesPlace, norm } from "./filters";
 import type { PropertyCard, SearchFilters } from "./types";
 
 // Ordem de prioridade da nota (4.2, camada 3). Pesos ajustáveis; soma não precisa ser 1.
@@ -36,7 +36,8 @@ export function scoreCard(
 ): number {
   let t = 0;
   if (c.status === "published") t += w.availability;
-  if (!f.city || norm(c.city) === norm(f.city)) t += w.region * (f.neighborhood && norm(c.neighborhood) === norm(f.neighborhood) ? 1 : 0.8);
+  const placeOk = !f.place || matchesPlace(c, f.place);
+  if (placeOk && (!f.city || norm(c.city) === norm(f.city))) t += w.region * (f.neighborhood && norm(c.neighborhood) === norm(f.neighborhood) ? 1 : 0.8);
   if (f.maxPrice != null && c.price != null && c.price <= f.maxPrice) {
     // dentro do orçamento; mais perto do teto = melhor aproveitamento, sem penalizar barato
     t += w.budget * (0.7 + 0.3 * clamp01(c.price / f.maxPrice));

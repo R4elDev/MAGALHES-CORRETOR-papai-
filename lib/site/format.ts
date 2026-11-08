@@ -40,5 +40,5 @@ export function interestHref(card: PropertyCard, settings: SiteSettings | null):
       url: propertyUrl(card.slug),
     }),
   );
-  return link ? { href: link, external: true } : { href: "/contato", external: false };
+  return link ? { href: link, external: true } : { href: "/#contato", external: false };
 }

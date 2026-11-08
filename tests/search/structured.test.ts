@@ -145,3 +145,18 @@ describe("validação extra", () => {
     expect(out.alternatives).toHaveLength(0); // só há alternativas quando results está vazio
   });
 });
+
+describe("place (cidade OU bairro)", () => {
+  it("texto de bairro não gera falso zero", async () => {
+    const alpha = card({ id: "alpha", city: "Barueri", neighborhood: "Alphaville" });
+    const centro = card({ id: "centro", city: "Barueri", neighborhood: "Centro" });
+    const out = await searchStructured({ filters: { place: "alphaville" } }, source([alpha, centro]));
+    expect(out.results.map((c) => c.id)).toEqual(["alpha"]);
+    const porCidade = await searchStructured({ filters: { place: "barueri" } }, source([alpha, centro]));
+    expect(porCidade.results).toHaveLength(2);
+  });
+  it("whatsapp inclui observações livres só no link", () => {
+    const url = whatsappForSearch("11999998888", { results: [], noResults: true }, {}, "https://x.com", "perto de escola")!;
+    expect(decodeURIComponent(url)).toContain("Observações: perto de escola");
+  });
+});

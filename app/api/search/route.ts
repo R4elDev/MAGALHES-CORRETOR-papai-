@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     const out = await searchStructured({ filters, geo }, structuredSource);
     const phone = await getWhatsAppNumber().catch(() => null);
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(req.url).origin;
-    const whatsappUrl = whatsappForSearch(phone, out, prefsFromFilters(filters, prefs), siteUrl);
+    const whatsappUrl = whatsappForSearch(phone, out, prefsFromFilters(filters, prefs), siteUrl, prefs?.notes);
     const propertyLinks: Record<string, string> = {};
     for (const c of [...out.results, ...out.alternatives.map((a) => a.card)]) {
       const l = whatsappForProperty(phone, c, siteUrl);

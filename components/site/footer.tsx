@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { SiteSettings } from "@/types/db";
 
 export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
+  const name = settings?.business_name ?? "Magalhães Corretor";
   const social = [
     ["Instagram", settings?.instagram],
     ["Facebook", settings?.facebook],
@@ -10,38 +11,27 @@ export function SiteFooter({ settings }: { settings: SiteSettings | null }) {
   ].filter((s): s is [string, string] => Boolean(s[1]));
 
   return (
-    <footer className="mt-24 bg-navy text-white">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3">
-        <div>
-          <p className="font-display text-lg font-extrabold">{settings?.business_name ?? "Magalhães Corretor"}</p>
+    <footer className="bg-navy-deep text-white">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0">
+          <p className="font-display text-lg font-extrabold">{name}</p>
           {settings?.creci && <p className="mt-1 text-sm text-white/70">CRECI {settings.creci}</p>}
-          {settings?.email && (
-            <a href={`mailto:${settings.email}`} className="mt-3 block text-sm text-white/80 hover:text-white">
-              {settings.email}
-            </a>
-          )}
         </div>
-        <nav aria-label="Rodapé" className="grid gap-2 text-sm text-white/80">
-          <Link href="/imoveis" className="hover:text-white">Imóveis</Link>
-          <Link href="/encontre-seu-imovel" className="hover:text-white">Encontre seu imóvel</Link>
-          <Link href="/sobre" className="hover:text-white">Sobre o Magalhães</Link>
-          <Link href="/contato" className="hover:text-white">Contato</Link>
-          <Link href="/privacidade" className="hover:text-white">Política de privacidade</Link>
+        <nav aria-label="Rodapé" className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
+          <Link href="/#imoveis" className="hover:text-white">Imóveis</Link>
+          <Link href="/#busca" className="hover:text-white">Encontre seu imóvel</Link>
+          <Link href="/#sobre" className="hover:text-white">Sobre</Link>
+          <Link href="/#contato" className="hover:text-white">Contato</Link>
+          <Link href="/privacidade" className="hover:text-white">Privacidade</Link>
+          {social.map(([label, url]) => (
+            <a key={label} href={url} target="_blank" rel="noopener noreferrer" className="hover:text-white">
+              {label}
+            </a>
+          ))}
         </nav>
-        {social.length > 0 && (
-          <ul className="grid gap-2 text-sm text-white/80">
-            {social.map(([label, url]) => (
-              <li key={label}>
-                <a href={url} target="_blank" rel="noopener noreferrer" className="hover:text-white">
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
       <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-white/60">
-        © {new Date().getFullYear()} {settings?.business_name ?? "Magalhães Corretor"}. Valores e disponibilidade sujeitos a confirmação.
+        © {new Date().getFullYear()} {name}. Valores e disponibilidade sujeitos a confirmação.
       </div>
     </footer>
   );

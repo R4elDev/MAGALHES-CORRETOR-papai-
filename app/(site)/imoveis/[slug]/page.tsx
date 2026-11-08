@@ -36,7 +36,7 @@ export default async function PropertyPage({ params }: { params: Promise<Params>
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <nav aria-label="Trilha" className="mb-4 text-sm text-muted">
-        <Link href="/imoveis" className="hover:text-orange">Imóveis</Link> / <span>{p.code ?? p.slug}</span>
+        <Link href="/#imoveis" className="hover:text-orange">Imóveis</Link> / <span>{p.code ?? p.slug}</span>
       </nav>
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
         <div>

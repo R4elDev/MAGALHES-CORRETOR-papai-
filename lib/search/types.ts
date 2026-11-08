@@ -1,6 +1,8 @@
 // Contrato público de busca (dono: Nexo). PrismaImob/Farol importam daqui, sem duplicar.
 
 export type SearchFilters = {
+  /** Texto livre de local: casa com cidade OU bairro (sem falso zero). */
+  place?: string;
   city?: string;
   neighborhood?: string;
   type?: string; // valor do enum de tipo do Lastro (ex.: apartment, house)

@@ -29,6 +29,11 @@ async function signCovers(cards: PropertyCard[], paths: Map<string, string>): Pr
 export const structuredSource: StructuredDeps = {
   async fetchCandidates(f: SearchFilters, limit: number) {
     let q = db().from("public_properties").select(COLS).limit(limit);
+    if (f.place) {
+      // or(city,bairro) por trecho; remove , ( ) que quebram a sintaxe do filtro PostgREST
+      const t = esc(f.place).replace(/[,()"]/g, " ").trim();
+      if (t) q = q.or(`city.ilike.%${t}%,neighborhood.ilike.%${t}%`);
+    }
     if (f.city) q = q.ilike("city", esc(f.city));
     if (f.neighborhood) q = q.ilike("neighborhood", esc(f.neighborhood));
     if (f.type) q = q.ilike("type", esc(f.type));

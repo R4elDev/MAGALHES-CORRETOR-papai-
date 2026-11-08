@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { AlternativeCard, FilterKey, PropertyCard } from "@/lib/search/types";
 
 export type SearchResponse = {
@@ -12,6 +13,7 @@ export type SearchResponse = {
 };
 
 const LABEL: Record<FilterKey, string> = {
+  place: "o local",
   city: "a cidade",
   neighborhood: "o bairro",
   type: "o tipo de imóvel",
@@ -72,16 +74,37 @@ function Card({ c, unmet, phoneUrl }: { c: PropertyCard; unmet?: FilterKey[]; ph
 
 export function SearchResults({
   data,
-  onRestart,
+  summary,
+  onEdit,
+  scroll = "nearest",
 }: {
   data: SearchResponse;
-  filters: Record<string, unknown>;
-  income: string;
-  onRestart: () => void;
+  summary: string[];
+  onEdit: () => void;
+  scroll?: "start" | "nearest";
 }) {
   const wa = data.whatsappFallback.url;
+  const top = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // acessibilidade: foco no resumo; suavidade/reduced-motion vêm do CSS global
+    top.current?.focus({ preventScroll: true });
+    top.current?.scrollIntoView({ block: scroll });
+  }, [scroll]);
   return (
-    <section className="mt-6 space-y-5" aria-live="polite">
+    <div className="mt-6 space-y-5">
+      <div ref={top} tabIndex={-1} className="scroll-mt-4 rounded-xl bg-surface p-3 outline-none">
+        <p className="text-xs font-medium text-muted">Sua busca</p>
+        <ul className="mt-1 flex flex-wrap gap-1.5">
+          {summary.map((t) => (
+            <li key={t} className="rounded-full bg-white px-3 py-1 text-xs font-medium">
+              {t}
+            </li>
+          ))}
+        </ul>
+        <button type="button" onClick={onEdit} className="mt-2 min-h-11 text-sm font-semibold text-blue underline underline-offset-2">
+          Alterar filtros
+        </button>
+      </div>
       {data.noResults ? (
         <div className="rounded-2xl bg-surface p-5">
           <p className="text-base leading-relaxed">
@@ -126,9 +149,9 @@ export function SearchResults({
         </div>
       )}
 
-      <button type="button" onClick={onRestart} className="min-h-11 text-sm font-medium text-blue underline underline-offset-2">
-        Refazer a busca
+      <button type="button" onClick={onEdit} className="min-h-11 text-sm font-medium text-blue underline underline-offset-2">
+        Alterar filtros e buscar de novo
       </button>
-    </section>
+    </div>
   );
 }

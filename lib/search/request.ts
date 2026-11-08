@@ -11,6 +11,8 @@ export const prefsSchema = z
     budget: short.optional(),
     type: short.optional(),
     bedrooms: z.union([short, z.number().int().min(0).max(20)]).optional(),
+    financing: z.enum(["financiar", "a_vista", "avaliando"]).optional(),
+    notes: z.string().trim().max(200).optional(),
   })
   .strict();
 

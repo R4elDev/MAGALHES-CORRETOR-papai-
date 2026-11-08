@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchResults, type SearchResponse } from "./search-results";
 
 const TYPES = [
@@ -18,7 +18,23 @@ const chip = (on: boolean) =>
     on ? "border-blue bg-blue text-white" : "border-border bg-white text-foreground hover:border-blue"
   }`;
 
-export function SearchWizard({ cities }: { cities: string[] }) {
+const STEP_TITLES = ["Localização", "Renda", "Orçamento", "Preferências"];
+
+export function SearchWizard({ cities: initialCities }: { cities?: string[] }) {
+  const [fetched, setFetched] = useState<string[] | null>(null);
+  const cities = initialCities ?? fetched ?? [];
+  useEffect(() => {
+    if (initialCities) return;
+    let off = false;
+    fetch("/api/search/cities")
+      .then((r) => (r.ok ? r.json() : { cities: [] }))
+      .then((d: { cities?: string[] }) => !off && setFetched(d.cities ?? []))
+      .catch(() => !off && setFetched([]));
+    return () => {
+      off = true;
+    };
+  }, [initialCities]);
+
   const [step, setStep] = useState(1);
   const [city, setCity] = useState("");
   const [income, setIncome] = useState("");
@@ -74,15 +90,21 @@ export function SearchWizard({ cities }: { cities: string[] }) {
 
   if (step === 5 && data) {
     return (
+      <div aria-live="polite">
       <SearchResults
         data={data}
-        filters={filters}
-        income={income}
-        onRestart={() => {
-          setData(null);
+        summary={[
+          city || "Qualquer cidade",
+          maxPrice ? `até ${brl(maxPrice)}` : "Sem limite de valor",
+          type ? (TYPES.find((t) => t.v === type)?.l ?? type) : "Qualquer tipo",
+          bedrooms > 0 ? `${bedrooms}+ quartos` : "Qualquer nº de quartos",
+        ]}
+        onEdit={() => {
+          setData(null); // mantém TODAS as respostas; volta ao primeiro passo
           setStep(1);
         }}
       />
+      </div>
     );
   }
 
@@ -91,7 +113,7 @@ export function SearchWizard({ cities }: { cities: string[] }) {
 
   return (
     <section className="mt-6" aria-live="polite">
-      <p className="text-xs font-medium text-muted">Etapa {step} de 4</p>
+      <p className="text-xs font-medium text-muted">Etapa {step} de 4 · {STEP_TITLES[step - 1]}</p>
       <div className="mt-1 h-1.5 rounded-full bg-surface" role="progressbar" aria-valuemin={1} aria-valuemax={4} aria-valuenow={step}>
         <div className="h-full rounded-full bg-orange transition-all" style={{ width: `${step * 25}%` }} />
       </div>
