@@ -32,7 +32,7 @@ export const confirmLeadContact = adminAction(leadConfirmSchema, async ({ leadId
 export const createLead = adminAction(leadCreateSchema, async (d) => {
   const created = await leads.create({
     name: d.name ?? null, phone: d.phone ?? null, region: d.region ?? null,
-    budget: d.budget, income: d.income, preferences: d.preferences ?? null,
+    budget: d.budget, income: d.income ?? null, preferences: d.preferences ?? null,
     property_id: d.propertyId ?? null, contact_kind: d.kind, source: "admin",
   });
   refresh();

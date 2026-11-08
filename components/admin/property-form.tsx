@@ -8,7 +8,7 @@ import {
 import { Button, Card, Field, Input, Select, Textarea } from "./ui";
 import { Feedback, useAction } from "./use-action";
 
-export type PropertyFormInitial = Partial<Record<string, string | number | boolean | null>> & { id?: string; featureIds?: string[] };
+export type PropertyFormInitial = Partial<Record<string, string | number | boolean | null | string[]>> & { id?: string; featureIds?: string[] };
 export type FeatureOption = { id: string; name: string };
 
 const s = (v: unknown) => (v == null ? "" : String(v));

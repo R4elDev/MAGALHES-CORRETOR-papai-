@@ -10,7 +10,7 @@ import { Feedback, useAction } from "./use-action";
 export type LeadRow = {
   id: string; name: string | null; phone: string | null; status: LeadStatusValue; source: string | null;
   contactKind: "click" | "confirmed" | "manual"; createdAt: string; propertyTitle: string | null; region: string | null;
-  budget: number | null; income: number | null; preferences: string | null; nextContactAt: string | null; whatsappHref: string | null;
+  budget: number | null; income: string | null; preferences: string | null; nextContactAt: string | null; whatsappHref: string | null;
 };
 const SOURCE: Record<string, string> = { property: "Imóvel", search: "Busca", search_no_results: "Busca sem resultado", chat: "Chat IA", admin: "Cadastro manual" };
 
@@ -34,7 +34,7 @@ function LeadCard({ lead }: { lead: LeadRow }) {
         {lead.propertyTitle && <><dt className="text-slate-500">Imóvel</dt><dd className="truncate">{lead.propertyTitle}</dd></>}
         {lead.region && <><dt className="text-slate-500">Região</dt><dd>{lead.region}</dd></>}
         {lead.budget != null && <><dt className="text-slate-500">Orçamento</dt><dd>{brl(lead.budget)}</dd></>}
-        {lead.income != null && <><dt className="text-slate-500">Renda declarada</dt><dd>{brl(lead.income)}</dd></>}
+        {lead.income != null && <><dt className="text-slate-500">Renda declarada</dt><dd>{lead.income}</dd></>}
         {lead.nextContactAt && <><dt className="text-slate-500">Próximo contato</dt><dd>{dateTimeBR(lead.nextContactAt)}</dd></>}
       </dl>
       {lead.preferences && <p className="mt-2 text-sm text-slate-700">{lead.preferences}</p>}

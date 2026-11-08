@@ -70,7 +70,7 @@ export const leadStatusSchema = z.object({
 export const leadNoteSchema = z.object({ leadId: z.string().uuid(), note: text(2000).min(1, "Escreva a observação") });
 export const leadCreateSchema = z.object({
   name: optText(120), phone: z.preprocess((v) => (v === "" ? null : v), z.string().regex(/^\+?\d{10,15}$/, "Telefone inválido").nullable().optional()),
-  region: optText(120), budget: money("Orçamento"), income: money("Renda"), preferences: optText(1000),
+  region: optText(120), budget: money("Orçamento"), income: optText(60), preferences: optText(1000),
   propertyId: z.string().uuid().optional().nullable(), kind: z.enum(CONTACT_KINDS).default("manual"),
 });
 export const leadConfirmSchema = z.object({ leadId: z.string().uuid() });

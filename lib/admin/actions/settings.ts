@@ -16,7 +16,7 @@ export const saveSettings = adminAction(settingsSchema, async (d) => {
     creci: d.creci ?? null, bio: d.bio ?? null,
     instagram: d.instagram ?? null, facebook: d.facebook ?? null, youtube: d.youtube ?? null, tiktok: d.tiktok ?? null,
     default_message: d.defaultMessage ?? null, hero_title: d.heroTitle ?? null, hero_subtitle: d.heroSubtitle ?? null,
-    featured_limit: d.featuredLimit,
+    featured_limit: d.featuredLimit ?? undefined,
   });
   revalidatePath("/admin/configuracoes");
   revalidatePath("/");

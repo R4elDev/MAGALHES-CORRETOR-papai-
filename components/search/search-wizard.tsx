@@ -31,12 +31,11 @@ export function SearchWizard({ cities }: { cities: string[] }) {
   const [error, setError] = useState("");
   const [data, setData] = useState<SearchResponse | null>(null);
 
-  const filters = {
-    ...(city && { city }),
-    ...(type && { type }),
-    ...(maxPrice && { maxPrice }),
-    ...(bedrooms > 0 && { minBedrooms: bedrooms }),
-  };
+  const filters: Record<string, string | number> = {};
+  if (city) filters.city = city;
+  if (type) filters.type = type;
+  if (maxPrice) filters.maxPrice = maxPrice;
+  if (bedrooms > 0) filters.minBedrooms = bedrooms;
 
   function askGeo() {
     if (!navigator.geolocation) return setGeoMsg("Seu navegador não oferece localização.");
@@ -59,8 +58,8 @@ export function SearchWizard({ cities }: { cities: string[] }) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           filters,
-          ...(geo && { geo }),
-          prefs: { ...(income && { income }), ...(city && { region: city }) },
+          geo: geo ?? undefined,
+          prefs: { income: income || undefined, region: city || undefined },
         }),
       });
       if (!res.ok) throw new Error(String(res.status));

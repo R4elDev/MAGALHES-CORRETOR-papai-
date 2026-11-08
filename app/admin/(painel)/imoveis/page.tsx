@@ -60,7 +60,7 @@ export default async function ImoveisPage({ searchParams }: { searchParams: Prom
                 </div>
                 <Link href={`/admin/imoveis/${p.id}`} className="mt-1 block truncate font-bold text-[#092A5E] hover:underline">{p.title}</Link>
                 <p className="truncate text-sm text-slate-600">
-                  {PROPERTY_TYPE_LABEL[p.type as keyof typeof PROPERTY_TYPE_LABEL] ?? p.type} · {p.neighborhood}, {p.city}/{p.state}
+                  {PROPERTY_TYPE_LABEL[p.type as keyof typeof PROPERTY_TYPE_LABEL] ?? p.type} · {p.neighborhood}, {p.city}
                 </p>
                 <p className="text-sm font-semibold text-slate-900">{brl(p.price)}</p>
                 <PropertyRowActions id={p.id} status={p.status as PropertyStatusValue} featured={!!p.featured} />
