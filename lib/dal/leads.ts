@@ -71,7 +71,7 @@ export async function addActivity(leadId: string, a: { type: LeadActivityType; n
 }
 
 export async function create(input: {
-  name: string | null; phone: string | null; region: string | null; budget: number | null; income: number | null;
+  name: string | null; phone: string | null; region: string | null; budget: number | null; income: string | null;
   preferences: string | null; property_id: string | null; contact_kind: LeadContactKind; source: string;
 }): Promise<{ id: string }> {
   const supabase = await createSessionClient();
@@ -79,7 +79,7 @@ export async function create(input: {
   const lead = must(res, "criar lead") as { id: string };
   must(await supabase.from("lead_preferences").insert({
     lead_id: lead.id, city: input.region, max_price: input.budget,
-    income_range: input.income == null ? null : String(input.income), notes: input.preferences,
+    income_range: input.income, notes: input.preferences,
   }), "salvar preferencias");
   if (input.property_id) must(await supabase.from("lead_properties").insert({ lead_id: lead.id, property_id: input.property_id }), "vincular imovel");
   return lead;
