@@ -124,7 +124,16 @@ h3 {
 }
 @media (max-width: 767px) {
   .character-slot--house {
-    max-width: 18rem;
+    width: 80%;
+    max-width: 16rem;
+  }
+  .character-slot--house.character-band--blue {
+    margin-right: 0;
+    margin-left: auto;
+  }
+  .character-slot--house.character-band--orange {
+    margin-right: auto;
+    margin-left: 0;
   }
 }
 @media (prefers-reduced-motion: reduce) {
