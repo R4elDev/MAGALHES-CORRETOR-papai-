@@ -8,14 +8,16 @@ Saída: `public/magalhaes/corpo/pose-casa-transparente-v1.png`.
 
 ## Uso na home preservada de 2a07184
 
-- Como funciona: faixa azul à direita do título e dos passos; no mobile, abaixo em fluxo.
+- Como funciona: rosto casa nos olhos recortado sobre faixa azul à direita. No mobile, rosto e título lado a lado, com os passos abaixo.
 - Sobre: faixa laranja no espaço do retrato existente; texto e grid preservados.
 - Contato: rosto de aprovação sem óculos à direita do texto existente, sem faixa ou fundo de cor.
-- Hero, busca, catálogo, textos e ordem das seções não foram alterados.
+- O quadro do catálogo usa novamente o ícone pensativo original, em 96 px, agora com fundo transparente. Hero, busca, textos e ordem das seções foram preservados.
 
 O corpo usa o PNG alpha de 1122 × 1402, sem uma segunda compressão de origem. `next/image` entrega AVIF/WebP com `quality={90}` e `sizes` de 288/320 px, com resolução para DPR 2/3. O rosto de aprovação original (312 × 427) é exibido em um slot de 112 × 96 px, com `object-fit: contain`; nenhuma arte é cortada em círculo. Não são usados data URIs nem imagens remotas.
 
-`CharacterBand` observa um slot estável com `IntersectionObserver`, sem `unobserve` na primeira entrada. O limiar de 15% permite animar a saída enquanto a arte ainda está parcialmente na viewport. Cada entrada/saída nos dois sentidos atualiza opacity e transform em 240 ms. Apenas a decoração é animada; o slot continua ocupando espaço. SSR, ausência de JS/IntersectionObserver e reduced-motion mantêm a arte visível. Mudanças de reduced-motion durante a sessão também são respeitadas. A decoração não recebe foco nem eventos de ponteiro; inputs, links, FAQ e textos ficam fora da árvore animada.
+`CharacterBand` acompanha continuamente a posição do slot estável: `p = clamp((0.9 × alturaViewport − topSlot) / (0.5 × alturaViewport), 0, 1)`. Ao descer, a arte entra gradualmente; ao subir, a mesma faixa de rolagem desfaz o movimento. Depois que o slot passou acima, permanece visível. Um listener passivo de scroll agenda no máximo um `requestAnimationFrame`; somente opacity e transform do wrapper decorativo recebem estilos diretos, sem renderizações React por pixel nem animações de tamanho. `data-progress` no slot expõe o valor para QA. SSR, ausência de JS e reduced-motion mantêm a arte totalmente visível. Mudanças de reduced-motion durante a sessão também são respeitadas. Texto e controles nunca são ocultados.
+
+Exemplo com viewport de 800 px: topSlot 720/620/520/420/320 corresponde a progresso 0/0.25/0.5/0.75/1. Reverter as mesmas posições reverte a animação. O progresso permanece 1 com topSlot negativo.
 
 QA solicitado ao Farol: CI cloud (testes, tipos, build), capturas 320/390/1440, overflow, casa/mãos/rosto inteiros e nítidos, reentrada após rolar para baixo e para cima, reduced-motion, navegação por teclado e conteúdo visível sem JS. Somente preview, sem promoção para produção.
 

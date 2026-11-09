@@ -83,7 +83,7 @@ h3 {
   animation-delay: 160ms;
 }
 
-/* Only decorative art moves. The observed slot and all page content stay still. */
+/* Scroll position only moves the decorative artwork; its slot and content stay still. */
 .character-slot {
   position: relative;
   width: 100%;
@@ -97,11 +97,6 @@ h3 {
   inset: 0;
   opacity: 1;
   transform: scale(1);
-  transition: opacity 240ms var(--ease-out-strong), transform 240ms var(--ease-out-strong);
-}
-.character-band[data-visible="false"] {
-  opacity: 0;
-  transform: scale(0.97);
 }
 .character-band__pill {
   position: absolute;
@@ -122,6 +117,14 @@ h3 {
   aspect-ratio: auto;
   margin: 0;
 }
+.character-slot--face-house {
+  width: 9rem;
+  max-width: 100%;
+  margin: 0;
+}
+.character-slot--face-house .character-band__pill {
+  inset: 30% 0 12%;
+}
 @media (max-width: 767px) {
   .character-slot--house {
     width: 80%;
@@ -137,10 +140,9 @@ h3 {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .character-band[data-visible] {
-    opacity: 1;
-    transform: none;
-    transition: none;
+  .character-band {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
