@@ -1,4 +1,5 @@
 // Leitura central das variaveis do Supabase. Nunca imprime valores.
+// NEXT_PUBLIC_* e incorporado no build: alteracoes no ambiente de producao exigem um novo deploy.
 
 /** true se URL e chave publica estao presentes (usado para falhar fechado sem lancar). */
 export function supabaseEnvReady(): boolean {
