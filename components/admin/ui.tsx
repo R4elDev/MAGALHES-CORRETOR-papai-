@@ -94,7 +94,7 @@ const tones = {
 } as const;
 export type BadgeTone = keyof typeof tones;
 export function Badge({ tone = "gray", children }: { tone?: BadgeTone; children: ReactNode }) {
-  return <span className={cx("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tones[tone])}>{children}</span>;
+  return <span className={cx("inline-flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs font-semibold leading-snug", tones[tone])}>{children}</span>;
 }
 
 export function EmptyState({ title, text, action, image }: { title: string; text: string; action?: ReactNode; image?: string }) {
