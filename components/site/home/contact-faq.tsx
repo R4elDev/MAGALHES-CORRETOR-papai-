@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CharacterBand } from "./character-band";
 import Link from "next/link";
 import type { SiteSettings } from "@/types/db";
 
@@ -26,7 +26,7 @@ export function ContactFaq({ settings, whatsappHref }: { settings: SiteSettings 
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue">Contato</p>
           <h2 className="mt-1 text-3xl font-extrabold text-navy md:text-4xl">Fale com o Magalhães</h2>
           <div className="mt-6 flex items-center gap-4">
-            <Image src="/magalhaes/rosto/09_atendendo_cliente.png" alt="" width={80} height={80} className="size-20 shrink-0 object-contain" />
+            <CharacterBand color="blue" variant="face" />
             <p className="text-pretty text-muted">Prefere conversar? Ele atende pelo WhatsApp e responde o quanto antes.</p>
           </div>
           <div className="mt-6 grid gap-3">

@@ -1,3 +1,5 @@
+import { CharacterBand } from "./character-band";
+
 const STEPS = [
   { n: "01", title: "Conte o que procura", text: "Região, quanto pretende investir, tipo de imóvel e quartos. Leva menos de um minuto e não pede cadastro." },
   { n: "02", title: "Veja o que combina", text: "Mostramos só imóveis realmente cadastrados e disponíveis. Quando algo não atende a tudo, avisamos o que ficou de fora." },
@@ -11,6 +13,7 @@ export function HowItWorks() {
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue">Como funciona</p>
           <h2 className="mt-1 text-3xl font-extrabold text-navy md:text-4xl">Do que você procura à conversa certa.</h2>
+          <CharacterBand color="blue" className="mt-8" />
         </div>
         <ol className="divide-y divide-border border-y border-border">
           {STEPS.map((s) => (

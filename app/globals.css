@@ -83,6 +83,64 @@ h3 {
   animation-delay: 160ms;
 }
 
+/* Only decorative art moves. The observed slot and all page content stay still. */
+.character-slot {
+  position: relative;
+  width: 100%;
+  max-width: 20rem;
+  margin-inline: auto;
+  aspect-ratio: 4 / 5;
+  pointer-events: none;
+}
+.character-band {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 240ms var(--ease-out-strong), transform 240ms var(--ease-out-strong);
+}
+.character-band[data-visible="false"] {
+  opacity: 0;
+  transform: translateX(-24px);
+}
+.character-band--orange[data-visible="false"] {
+  transform: translateX(24px);
+}
+.character-band__pill {
+  position: absolute;
+  inset: 32% 0 24%;
+  border-radius: 9999px;
+  background: var(--color-blue);
+}
+.character-band--orange .character-band__pill {
+  background: var(--color-orange);
+}
+.character-band__art {
+  object-fit: contain;
+}
+.character-slot--face {
+  flex: 0 0 7rem;
+  width: 7rem;
+  height: 6rem;
+  aspect-ratio: auto;
+  margin: 0;
+}
+.character-slot--face .character-band__pill {
+  inset: 25% 0 5%;
+}
+@media (max-width: 767px) {
+  .character-slot--house {
+    max-width: 18rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .character-band[data-visible] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 details > summary {
   list-style: none;
 }
