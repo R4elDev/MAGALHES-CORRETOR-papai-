@@ -60,6 +60,6 @@ export async function getAdminSettings() {
 /** Opções de imóvel para selects (agenda/CRM). */
 export async function propertyOptions() {
   await requireAdmin();
-  const res = await properties.list({}, 1);
-  return res.items.map((p) => ({ id: p.id, label: `${p.code} — ${p.title}` }));
+  const items = await properties.listOptions();
+  return items.map((p) => ({ id: p.id, label: `${p.code} — ${p.title}` }));
 }

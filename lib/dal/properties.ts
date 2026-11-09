@@ -14,6 +14,17 @@ const LIST_COLS =
 
 type ListFilters = { status?: PropertyStatus; q?: string };
 
+/** Mesma primeira pagina dos selects; dispensa contagem, capas e URLs assinadas. */
+export async function listOptions(): Promise<Array<{ id: string; code: string; title: string }>> {
+  const supabase = await createSessionClient();
+  return must(await supabase
+    .from("properties")
+    .select("id, code, title")
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(PAGE_SIZE), "opcoes de imoveis") as Array<{ id: string; code: string; title: string }>;
+}
+
 export async function list(filters: ListFilters = {}, page = 1, pageSize = PAGE_SIZE): Promise<Paged<AdminPropertyRow>> {
   const supabase = await createSessionClient();
   const from = (Math.max(page, 1) - 1) * pageSize;
