@@ -127,11 +127,11 @@ h3 {
     width: 80%;
     max-width: 16rem;
   }
-  .character-slot--house.character-band--blue {
+  .character-slot--house.character-slot--blue {
     margin-right: 0;
     margin-left: auto;
   }
-  .character-slot--house.character-band--orange {
+  .character-slot--house.character-slot--orange {
     margin-right: auto;
     margin-left: 0;
   }

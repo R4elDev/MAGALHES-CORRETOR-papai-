@@ -40,7 +40,7 @@ export function CharacterBand({ color, variant = "house", className = "" }: Prop
   }, []);
 
   return (
-    <div ref={slot} aria-hidden="true" className={`character-slot character-slot--${variant} ${className}`}>
+    <div ref={slot} aria-hidden="true" className={`character-slot character-slot--${variant} character-slot--${color} ${className}`}>
       <div className={`character-band character-band--${color}`} data-visible={visible}>
         {variant === "house" && <span className="character-band__pill" />}
         <Image
