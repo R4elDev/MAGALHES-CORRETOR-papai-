@@ -1,0 +1,239 @@
+/* Estilos do admin, escopados em .adm. Só transform/opacity animam; reduced-motion respeitado. */
+.adm {
+  --adm-navy: #092a5e;
+  --adm-blue: #1769aa;
+  --adm-orange: #ff7500;
+  --adm-bg: #f5f7fa;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --adm-nav-h: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Feedback de toque em tudo que é pressionável */
+.adm-press {
+  transition:
+    transform 150ms var(--ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
+}
+.adm-press:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: scale(0.97);
+}
+
+/* Superfícies premium: borda fina + sombra leve */
+.adm-card {
+  border: 1px solid rgb(9 42 94 / 0.08);
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgb(9 42 94 / 0.04),
+    0 8px 24px -16px rgb(9 42 94 / 0.14);
+}
+.adm-lift {
+  transition:
+    transform 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out),
+    border-color 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .adm-lift:hover {
+    transform: translateY(-2px);
+    border-color: rgb(23 105 170 / 0.3);
+    box-shadow:
+      0 2px 4px rgb(9 42 94 / 0.05),
+      0 14px 28px -16px rgb(9 42 94 / 0.22);
+  }
+}
+.adm-lift:active {
+  transform: scale(0.985);
+}
+
+/* Select com seta própria */
+.adm-select {
+  appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+}
+.adm-field {
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+.adm-field:focus {
+  outline: none;
+  border-color: var(--adm-blue);
+  box-shadow: 0 0 0 4px rgb(23 105 170 / 0.14);
+}
+
+/* Entradas */
+@keyframes adm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes adm-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.adm-rise {
+  animation: adm-rise 240ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+.adm-page {
+  animation: adm-rise 200ms var(--ease-out) both;
+}
+@keyframes adm-grow {
+  from {
+    transform: scaleY(0.25);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.adm-grow {
+  transform-origin: bottom;
+  animation: adm-grow 360ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms + 80ms);
+}
+
+/* Spinner e skeleton */
+@keyframes adm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.adm-spinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: adm-spin 700ms linear infinite;
+}
+@keyframes adm-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+.adm-skel {
+  background: rgb(9 42 94 / 0.07);
+  border-radius: 0.75rem;
+  animation: adm-pulse 1.2s ease-in-out infinite;
+}
+
+/* Barra de progresso de navegação */
+.adm-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 70;
+  height: 3px;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--adm-orange), var(--adm-blue));
+  transform-origin: left;
+  transform: scaleX(0);
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+.adm-progress[data-active="true"] {
+  opacity: 1;
+  animation: adm-progress 8s var(--ease-out) forwards;
+}
+@keyframes adm-progress {
+  from {
+    transform: scaleX(0.05);
+  }
+  to {
+    transform: scaleX(0.9);
+  }
+}
+
+/* Navegação: indicador do item ativo */
+.adm-nav-item {
+  position: relative;
+}
+.adm-nav-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--adm-orange);
+  transform: scaleY(0);
+  transition: transform 200ms var(--ease-out);
+}
+.adm-nav-item[aria-current]::before {
+  transform: scaleY(1);
+}
+.adm-tab::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 28%;
+  right: 28%;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--adm-orange);
+  transform: scaleX(0);
+  transition: transform 200ms var(--ease-out);
+}
+.adm-tab[aria-current]::after {
+  transform: scaleX(1);
+}
+
+/* Barra de salvar fixa acima do menu mobile */
+.adm-savebar {
+  position: sticky;
+  bottom: var(--adm-nav-h);
+  z-index: 20;
+}
+@media (min-width: 1024px) {
+  .adm-savebar {
+    bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-rise,
+  .adm-page,
+  .adm-grow {
+    animation: adm-fade 160ms ease both;
+    animation-delay: 0ms;
+  }
+  .adm-press:active:not(:disabled),
+  .adm-lift:active,
+  .adm-lift:hover {
+    transform: none !important;
+  }
+  .adm-nav-item::before,
+  .adm-tab::after {
+    transition: none;
+  }
+  .adm-spinner {
+    animation-duration: 1.6s;
+  }
+  .adm-skel {
+    animation: none;
+  }
+  .adm-progress[data-active="true"] {
+    animation: none;
+    transform: scaleX(0.6);
+  }
+}

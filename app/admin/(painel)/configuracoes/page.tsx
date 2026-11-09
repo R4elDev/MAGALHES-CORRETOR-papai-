@@ -13,7 +13,7 @@ export default async function Configuracoes() {
   }
   return (
     <>
-      <PageHeader title="Configurações" subtitle="Dados exibidos no site e usados nos links de WhatsApp." />
+      <PageHeader title="Configurações" subtitle="Dados exibidos no site e usados nos links de WhatsApp. Veja a pré-visualização enquanto edita." />
       <SettingsForm
         logoUrl={s?.logo_url ?? null}
         avatarUrl={s?.avatar_url ?? null}
