@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 type Props = {
   color: "blue" | "orange";
-  variant?: "house" | "face";
+  variant?: "house" | "face" | "face-house";
   className?: string;
 };
 
@@ -44,11 +44,11 @@ export function CharacterBand({ color, variant = "house", className = "" }: Prop
       <div className={`character-band character-band--${color}`} data-visible={visible}>
         {variant === "house" && <span className="character-band__pill" />}
         <Image
-          src={variant === "house" ? "/magalhaes/corpo/pose-casa-transparente-v1.png" : "/magalhaes/rosto/10_joia_aprovacao.png"}
+          src={variant === "house" ? "/magalhaes/corpo/pose-casa-transparente-v1.png" : variant === "face-house" ? "/magalhaes/rosto/03_casa_nos_olhos.png" : "/magalhaes/rosto/10_joia_aprovacao.png"}
           alt=""
           fill
           quality={90}
-          sizes={variant === "house" ? "(min-width: 768px) 320px, 288px" : "112px"}
+          sizes={variant === "house" ? "(min-width: 768px) 320px, 288px" : variant === "face-house" ? "(min-width: 768px) 144px, 112px" : "112px"}
           className="character-band__art"
         />
       </div>
