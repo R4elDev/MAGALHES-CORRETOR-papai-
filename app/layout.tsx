@@ -6,6 +6,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 
 export const metadata: Metadata = {
+  icons: {
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   title: { default: "Magalhães Corretor", template: "%s | Magalhães Corretor" },
   description: "Imóveis selecionados pelo Magalhães. Explore o catálogo ou descubra quais combinam com você.",
 };
