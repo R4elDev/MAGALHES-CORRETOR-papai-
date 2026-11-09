@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CatalogEmpty } from "@/components/site/catalog-empty";
 import { PropertyCard } from "@/components/site/property-card";
+import { Reveal } from "./reveal";
 import { catalogHref, type SP } from "@/lib/site/params";
 import type { PropertyCard as Card, PublicFilters, PublicSort, SiteSettings } from "@/types/db";
 
@@ -52,8 +53,10 @@ export function Catalog({ sp, filters, sort, page, filtered, items, total, hasMo
           <CatalogEmpty error={error} filtered={filtered} whatsappHref={whatsappHref} />
         ) : (
           <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((c) => (
-              <PropertyCard key={c.id} card={c} settings={settings} />
+            {items.map((c, i) => (
+              <Reveal key={c.id} delay={(i % 3) * 70}>
+                <PropertyCard card={c} settings={settings} />
+              </Reveal>
             ))}
           </div>
         )}

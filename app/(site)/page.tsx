@@ -1,9 +1,9 @@
 import { QuickSearch } from "@/components/search/quick-search";
 import { About } from "@/components/site/home/about";
 import { Catalog } from "@/components/site/home/catalog";
-import { ContactFaq } from "@/components/site/home/contact-faq";
+import { ContactBand, HowBand, VisitBand } from "@/components/site/home/bands";
+import { Faq } from "@/components/site/home/contact-faq";
 import { Hero } from "@/components/site/home/hero";
-import { HowItWorks } from "@/components/site/home/how-it-works";
 import { listAvailableCities } from "@/lib/search/source";
 import { loadList, loadSettings } from "@/lib/site/data";
 import { phoneOf } from "@/lib/site/format";
@@ -47,10 +47,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         settings={settings}
         whatsappHref={wa}
       />
-      <HowItWorks />
+      <HowBand />
+      <VisitBand whatsappHref={wa} />
       <About settings={settings} />
-      <ContactFaq settings={settings} whatsappHref={wa} />
-      <div className="h-24" aria-hidden />
+      <ContactBand settings={settings} whatsappHref={wa} />
+      <Faq />
     </>
   );
 }
