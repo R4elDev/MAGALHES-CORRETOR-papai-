@@ -34,7 +34,7 @@ export function SiteHeader({ name, whatsappHref }: { name: string; whatsappHref:
     <header className="sticky top-0 z-40 border-b border-border bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <Link href="/" className="flex min-w-0 items-center gap-2.5" onClick={close}>
-          <Image src="/magalhaes/rosto/10_joia_aprovacao.png" alt="" width={40} height={40} className="size-10 shrink-0 object-contain" />
+          <Image src="/magalhaes/rosto/10_joia_aprovacao.png" alt="" width={40} height={48} className="h-12 w-10 shrink-0 object-contain" />
           <span className="font-display text-sm font-extrabold leading-[1.1] text-navy sm:text-base">{name}</span>
         </Link>
 
