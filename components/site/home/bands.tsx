@@ -50,7 +50,7 @@ export function HowBand() {
         </div>
         {/* Recorte transparente (alpha real) direto sobre o azul, com brilho laranja discreto atrás */}
         <Reveal from="right" className="md:h-full">
-          <div className="relative h-[24rem] bg-[radial-gradient(circle_at_60%_62%,rgba(255,117,0,0.26),transparent_62%)] sm:h-[28rem] md:h-full md:min-h-[32rem]">
+          <div className="relative h-[24rem] bg-[radial-gradient(closest-side_at_58%_60%,rgba(255,117,0,0.30),transparent)] sm:h-[28rem] md:h-full md:min-h-[32rem]">
             <Image
               src="/magalhaes/corpo/pose-casa.webp"
               alt="Magalhães segurando uma casa na mão"
