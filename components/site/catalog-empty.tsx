@@ -14,7 +14,7 @@ export function CatalogEmpty({ error, filtered, whatsappHref }: { error?: boolea
       : "Em breve os imóveis selecionados pelo Magalhães aparecem aqui. Enquanto isso, você pode falar direto com ele.";
   return (
     <div className="mx-auto flex max-w-md flex-col items-center rounded-3xl border border-border bg-surface px-6 py-12 text-center">
-      <Image src="/magalhaes/rosto/03_casa_nos_olhos.png" alt="" width={144} height={144} quality={90} sizes="144px" className="size-36 object-contain" />
+      <Image src="/magalhaes/rosto/03_casa_nos_olhos-transparente-v1.png" alt="" width={144} height={144} quality={90} sizes="144px" className="size-36 object-contain" />
       <h3 className="mt-4 font-display text-xl font-extrabold text-navy">{title}</h3>
       <p className="mt-2 text-sm text-muted">{text}</p>
       <div className="mt-6 flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
