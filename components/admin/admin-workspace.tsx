@@ -18,6 +18,7 @@ type WorkspaceAPI = {
   activePanel: AdminPanel | null; open: (action: AdminWorkspaceAction, propertyId?: string) => void;
   close: () => void; back: () => void; refresh: (panel?: AdminPanel) => void; preload: (panel: AdminPanel) => void;
 };
+const depthOf = (state: unknown) => (state && typeof state === "object" && typeof (state as { adminDepth?: unknown }).adminDepth === "number" ? (state as { adminDepth: number }).adminDepth : 0);
 const Context = createContext<WorkspaceAPI | null>(null);
 export function useAdminWorkspace() { const value = useContext(Context); if (!value) throw new Error("AdminWorkspaceProvider ausente"); return value; }
 export function AdminOpenButton({ action, propertyId, className, children }: { action: AdminWorkspaceAction; propertyId?: string; className?: string; children: ReactNode }) {
@@ -59,10 +60,12 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
   const search = useSearchParams().toString();
   const [location, setLocation] = useState<WorkspaceLocation>({ panel: null, property: null });
   const locationRef = useRef(location); locationRef.current = location;
-  const ownHistory = useRef(0);
+  const depthRef = useRef(0);
   const [wizardBusy, setWizardBusy] = useState(false);
+  const busyRef = useRef(false); busyRef.current = wizardBusy;
   const [drafts, setDrafts] = useState<Record<string, WizardEntry>>({});
   const draftsRef = useRef(drafts); draftsRef.current = drafts;
+  const commitDrafts = useCallback((update: (current: Record<string, WizardEntry>) => Record<string, WizardEntry>) => { const next = update(draftsRef.current); draftsRef.current = next; setDrafts(next); }, []);
   const [wizardError, setWizardError] = useState<string | null>(null);
   const [wizardLoading, setWizardLoading] = useState(false);
   const wizardRequest = useRef(0);
@@ -80,16 +83,31 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
       if (replace) router.replace(href); else router.push(href);
       return;
     }
-    const state = { ...window.history.state, adminWorkspace: true };
-    if (replace) window.history.replaceState(state, "", workspaceHref(next, window.location.search));
-    else { window.history.pushState(state, "", workspaceHref(next, window.location.search)); ownHistory.current++; }
+    // adminDepth counts entries pushed by the workspace, so back/close never need a guess.
+    const base = (window.history.state ?? {}) as Record<string, unknown>;
+    if (replace) window.history.replaceState({ ...base, adminWorkspace: true }, "", workspaceHref(next, window.location.search));
+    else { depthRef.current = depthOf(base) + 1; window.history.pushState({ ...base, adminWorkspace: true, adminDepth: depthRef.current }, "", workspaceHref(next, window.location.search)); }
   }, [router]);
   useEffect(() => {
-    const sync = () => { setLocation(parseWorkspaceLocation(new URLSearchParams(window.location.search))); ownHistory.current = Math.max(0, ownHistory.current - 1); };
-    sync(); window.addEventListener("popstate", sync);
+    depthRef.current = depthOf(window.history.state);
+    setLocation(parseWorkspaceLocation(new URLSearchParams(window.location.search)));
+    const sync = (event: PopStateEvent) => {
+      const next = parseWorkspaceLocation(new URLSearchParams(window.location.search));
+      const current = locationRef.current;
+      const newDepth = depthOf(event.state);
+      if (busyRef.current && (next.panel !== current.panel || next.property !== current.property)) {
+        // Saving/uploading: undo the browser navigation instead of unmounting the form mid-flight.
+        window.history.go(depthRef.current - newDepth);
+        return;
+      }
+      depthRef.current = newDepth;
+      setLocation(next);
+    };
+    window.addEventListener("popstate", sync);
     return () => window.removeEventListener("popstate", sync);
   }, []);
   useEffect(() => {
+    if (busyRef.current) return;
     setLocation(pathname === "/admin" ? parseWorkspaceLocation(new URLSearchParams(search)) : { panel: null, property: null });
   }, [pathname, search]);
   useEffect(() => { if (location.panel) readers.current[location.panel].preload(); }, [location.panel]);
@@ -101,23 +119,31 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
     setWizardLoading(true);
     try {
       const data = await readWorkspaceProperty(draftsRef.current[key]?.draft.savedId ?? (key === "novo" ? undefined : key));
-      if (wizardRequest.current === request) setDrafts((current) => ({ ...current, [key]: { draft: current[key]?.draft ?? createPropertyDraft(data.property), data } }));
+      if (wizardRequest.current === request) commitDrafts((current) => ({ ...current, [key]: { draft: current[key]?.draft ?? createPropertyDraft(data.property), data } }));
     } catch { if (wizardRequest.current === request) setWizardError("Não foi possível carregar este imóvel. Tente novamente."); }
     finally { if (wizardRequest.current === request) setWizardLoading(false); }
-  }, []);
+  }, [commitDrafts]);
   useEffect(() => { if (location.property) void loadWizard(location.property, !!draftsRef.current[location.property]?.draft.savedId); }, [location.property, loadWizard]);
-  const back = useCallback(() => {
-    if (wizardBusy) return;
+  // Leaves the top-most layer: pops our own history entry when there is one, otherwise rewrites the URL in place.
+  const leave = useCallback((panelAfter?: AdminPanel | null) => {
     const current = locationRef.current;
-    if (ownHistory.current > 0) window.history.back();
-    else writeLocation(current.property ? { ...current, property: null } : { panel: null, property: null }, true);
-  }, [wizardBusy, writeLocation]);
+    const depth = depthOf(window.history.state);
+    const wizardOnly = current.property !== null;
+    const target: WorkspaceLocation = wizardOnly ? { panel: panelAfter === undefined ? current.panel : panelAfter, property: null } : { panel: null, property: null };
+    if (depth > 0 && window.location.pathname === "/admin" && target.panel === current.panel) {
+      window.history.go(wizardOnly ? -1 : -depth);
+      return;
+    }
+    writeLocation(target, true);
+  }, [writeLocation]);
+  const back = useCallback(() => { if (!wizardBusy) leave(); }, [wizardBusy, leave]);
   const close = useCallback(() => {
     if (wizardBusy) return;
     const current = locationRef.current;
     if (!current.panel && !current.property) return;
-    writeLocation(current.property ? { ...current, property: null } : { panel: null, property: null }, true);
-  }, [wizardBusy, writeLocation]);
+    if (current.property && draftsRef.current[current.property]?.draft.savedId) void readers.current.properties.load();
+    leave();
+  }, [wizardBusy, leave]);
   const open = useCallback((action: AdminWorkspaceAction, propertyId?: string) => {
     if (wizardBusy) return;
     if (action === "edit-property" && (!propertyId || !parseWorkspaceLocation(new URLSearchParams({ imovel: propertyId })).property)) return;
@@ -136,11 +162,15 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
   const preload = useCallback((panel: AdminPanel) => readers.current[panel].preload(), []);
   const key = location.property;
   const entry = key ? drafts[key] : undefined;
-  const updateDraft = (draft: PropertyDraft) => { if (key) setDrafts((current) => ({ ...current, [key]: { ...current[key], draft } })); };
+  const updateDraft = (draft: PropertyDraft) => {
+    if (!key) return;
+    commitDrafts((current) => current[key] ? { ...current, [key]: { ...current[key], draft } } : current);
+  };
+  const dropDraft = (draftKey: string) => commitDrafts((current) => { const rest = { ...current }; delete rest[draftKey]; return rest; });
   const refreshImages = () => {
     if (!key) return;
     const savedId = draftsRef.current[key]?.draft.savedId;
-    if (savedId) void readWorkspaceProperty(savedId).then((data) => setDrafts((current) => current[key] ? { ...current, [key]: { ...current[key], data } } : current)).catch(() => setWizardError("As fotos foram salvas, mas a prévia não atualizou. Feche e reabra para conferir."));
+    if (savedId) void readWorkspaceProperty(savedId).then((data) => commitDrafts((current) => current[key] ? { ...current, [key]: { ...current[key], data } } : current)).catch(() => setWizardError("As fotos foram salvas, mas a prévia não atualizou. Feche e reabra para conferir."));
   };
   const panelTitle = { properties: "Imóveis", leads: "Interessados", visits: "Agenda de visitas" };
   const leadRows = leads.data?.items.map((lead) => ({
@@ -159,11 +189,12 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
     <AdminDialog open={key !== null} title={entry?.draft.existing ? "Editar imóvel" : "Cadastrar imóvel"} description="Preencha no seu ritmo. Você pode voltar às etapas e revisar tudo antes de salvar." onClose={close} onBack={back} backLabel="Voltar ao painel" busy={wizardBusy} size="lg">
       <ReadFeedback loading={wizardLoading} error={wizardError} retry={() => { if (key) void loadWizard(key, true); }} />
       {entry && <PropertyForm key={key} draft={entry.draft} features={entry.data.allFeatures} images={entry.data.images.map((image) => ({ id: image.id, url: image.url ?? "", is_cover: image.is_cover }))} onDraftChange={updateDraft} onBusyChange={setWizardBusy} onImagesChanged={refreshImages} onSaved={() => {
-        if (key) setDrafts((current) => { const next = { ...current }; delete next[key]; return next; });
-        writeLocation({ panel: "properties", property: null }, true); refresh("properties");
+        if (key) dropDraft(key);
+        leave("properties"); refresh("properties");
       }} onDiscard={() => {
-        if (key) setDrafts((current) => { const next = { ...current }; delete next[key]; return next; });
-        writeLocation({ ...location, property: null }, true);
+        const hadSaved = !!(key && draftsRef.current[key]?.draft.savedId);
+        if (key) dropDraft(key);
+        leave(); if (hadSaved) void readers.current.properties.load();
       }} />}
     </AdminDialog>
   </Context.Provider>;
