@@ -13,9 +13,9 @@ function AssetUpload({ kind, label, url }: { kind: "logo" | "avatar"; label: str
     <div className="space-y-2">
       <p className="text-sm font-medium text-slate-700">{label}</p>
       <div className="flex items-center gap-3">
-        <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-400">
+        <div className={`grid place-items-center text-xs text-slate-400 ${kind === "avatar" ? "h-20 w-16" : "h-16 w-16 overflow-hidden rounded-xl border border-slate-200 bg-slate-50"}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {url ? <img src={url} alt="" className="h-full w-full object-cover" /> : "vazio"}
+          {url ? <img src={url} alt="" className={kind === "avatar" ? "h-full w-full object-contain" : "h-full w-full object-cover"} /> : "vazio"}
         </div>
         <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-slate-300 px-3 text-sm font-semibold text-[#092A5E]">
           {pending ? "Enviando…" : "Trocar imagem"}
