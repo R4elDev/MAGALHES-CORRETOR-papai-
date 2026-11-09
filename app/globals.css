@@ -96,15 +96,12 @@ h3 {
   position: absolute;
   inset: 0;
   opacity: 1;
-  transform: translateX(0);
+  transform: scale(1);
   transition: opacity 240ms var(--ease-out-strong), transform 240ms var(--ease-out-strong);
 }
 .character-band[data-visible="false"] {
   opacity: 0;
-  transform: translateX(-24px);
-}
-.character-band--orange[data-visible="false"] {
-  transform: translateX(24px);
+  transform: scale(0.97);
 }
 .character-band__pill {
   position: absolute;
@@ -124,9 +121,6 @@ h3 {
   height: 6rem;
   aspect-ratio: auto;
   margin: 0;
-}
-.character-slot--face .character-band__pill {
-  inset: 25% 0 5%;
 }
 @media (max-width: 767px) {
   .character-slot--house {
