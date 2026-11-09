@@ -27,9 +27,9 @@ const STEPS = [
 /** Faixa NAVY — arte à direita (Magalhães com a casa na mão). */
 export function HowBand() {
   return (
-    <section id="como-funciona" className="mt-24 bg-navy text-white md:bg-[linear-gradient(to_right,#092a5e_50%,#fefefe_50%)]">
+    <section id="como-funciona" className="mt-24 overflow-hidden bg-navy text-white">
       <div className="mx-auto grid max-w-6xl md:grid-cols-2">
-        <div className="px-4 py-14 md:py-20 md:pr-12">
+        <div className="px-4 pb-6 pt-14 md:py-20 md:pr-12">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">Como funciona</p>
             <h2 className="mt-1 text-3xl font-extrabold md:text-4xl">Do que você procura à conversa certa.</h2>
@@ -48,7 +48,18 @@ export function HowBand() {
             ))}
           </ol>
         </div>
-        <Art src="/magalhaes/corpo/pose-05.webp" alt="Magalhães segurando uma casa na mão" from="right" />
+        {/* Recorte transparente (alpha real) direto sobre o azul, com brilho laranja discreto atrás */}
+        <Reveal from="right" className="md:h-full">
+          <div className="relative h-[24rem] bg-[radial-gradient(circle_at_60%_62%,rgba(255,117,0,0.26),transparent_62%)] sm:h-[28rem] md:h-full md:min-h-[32rem]">
+            <Image
+              src="/magalhaes/corpo/pose-casa.webp"
+              alt="Magalhães segurando uma casa na mão"
+              fill
+              sizes="(min-width: 768px) 45vw, 100vw"
+              className="object-contain object-bottom"
+            />
+          </div>
+        </Reveal>
       </div>
     </section>
   );

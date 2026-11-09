@@ -99,9 +99,17 @@ h3 {
 [data-reveal="pending"][data-from="right"] {
   transform: translateX(24px);
 }
-[data-reveal="in"] {
+[data-reveal="in"],
+[data-reveal="pending"]:focus-within {
   opacity: 1;
   transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 details > summary {

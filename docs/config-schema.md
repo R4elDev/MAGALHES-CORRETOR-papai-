@@ -44,3 +44,8 @@ Todas aditivas (sem DROP/TRUNCATE). Aplicar só com autorização do usuário.
 
 ## Vercel (Farol, depois da revisão)
 Definir no projeto Vercel DESTE site: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (somente servidor, nunca `NEXT_PUBLIC_`). Valores: copiar do `.env.local` local sem colar em chat/commit.
+
+## Bootstrap do admin — CONCLUÍDO (2026-11-08)
+- Havia exatamente 1 conta em `auth.users` (confirmada). Vinculada em `admin_users` via `insert ... select ... where count(*)=1 on conflict (user_id) do nothing` (PK = `user_id`).
+- Verificado (somente leitura, claims simulados, rollback): conta confirmada, 1 admin vinculado, `is_admin()` = true sob RLS, vê a própria linha em `admin_users`, lê `properties` e `admin_dashboard_stats()` funciona.
+- Nenhuma senha tocada; nenhuma config de Auth alterada. Pendente (opcional, só se o usuário pedir): desligar "Allow new users to sign up".
