@@ -38,8 +38,8 @@ function useRead<T, F extends object>(reader: (filters: F) => Promise<T>, defaul
   const load = useCallback(async (next?: F) => {
     if (next) filters.current = next;
     const request = ++generation.current;
-    pending.current = true; setLoading(true); setError(null);
-    try { const value = await reader(filters.current); if (generation.current === request) { setData(value); loadedAt.current = Date.now(); } }
+    pending.current = true; loadedAt.current = Date.now(); setLoading(true); setError(null);
+    try { const value = await reader(filters.current); if (generation.current === request) setData(value); }
     catch { if (generation.current === request) setError("Não foi possível carregar os dados. Verifique sua conexão e tente novamente."); }
     finally { if (generation.current === request) { pending.current = false; setLoading(false); } }
   }, [reader]);
