@@ -24,9 +24,10 @@ export function CharacterBand({ color, variant = "house", className = "" }: Prop
       observer?.disconnect();
       setVisible(true);
       if (motion.matches) return;
+      const threshold = 0.15;
       observer = new IntersectionObserver(([entry]) => {
-        setVisible(entry.isIntersecting);
-      }, { threshold: 0 });
+        setVisible(entry.isIntersecting && entry.intersectionRatio >= threshold);
+      }, { threshold: [0, threshold] });
       observer.observe(element);
     };
 
